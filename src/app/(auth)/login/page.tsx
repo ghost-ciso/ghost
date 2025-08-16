@@ -1,12 +1,21 @@
 "use client";
-import { useState, FormEvent } from "react";
+
+import { Suspense, useState, FormEvent } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Login() {
+  return (
+    <Suspense fallback={<main className="p-8">Loading…</main>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,14 +27,15 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     const supabase = supabaseBrowser();
-    const emailRedirectTo = `${location.origin}/auth/callback?next=/dashboard`;
+    const base = process.env.NEXT_PUBLIC_SITE_URL ?? location.origin;
+    const emailRedirectTo = `${base}/auth/callback?next=/dashboard`;
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo },
     });
     setLoading(false);
     if (error) alert(error.message);
-    else router.push("/"); // just takes you back home while you check email
+    else router.push("/"); // back home while you check email
   }
 
   async function onPassword(e: FormEvent) {

@@ -22,9 +22,7 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user && req.nextUrl.pathname.startsWith("/dashboard")) {
     const url = req.nextUrl.clone();
@@ -36,6 +34,4 @@ export async function middleware(req: NextRequest) {
   return res;
 }
 
-export const config = {
-  matcher: ["/dashboard/:path*"],
-};
+export const config = { matcher: ["/dashboard/:path*"] };
