@@ -22,6 +22,7 @@ function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const redirect = params.get("redirectedFrom") || "/dashboard";
+  const sent = params.get("sent") === "1";
 
   async function onMagicLink(e: FormEvent) {
     e.preventDefault();
@@ -35,7 +36,7 @@ function LoginForm() {
     });
     setLoading(false);
     if (error) alert(error.message);
-    else router.push("/"); // back home while you check email
+    else router.push("/login?sent=1"); // stay on login with success banner
   }
 
   async function onPassword(e: FormEvent) {
@@ -53,6 +54,11 @@ function LoginForm() {
       <Card className="w-full max-w-sm">
         <CardHeader><CardTitle>Sign in</CardTitle></CardHeader>
         <CardContent className="space-y-3">
+          {sent && (
+            <p className="text-sm rounded-md bg-green-50 border border-green-200 p-2 text-green-700">
+              Check your email for a magic link. It will log you in and take you to your dashboard.
+            </p>
+          )}
           <form onSubmit={onPassword} className="space-y-3">
             <Input type="email" placeholder="you@example.com" value={email} onChange={(e)=>setEmail(e.target.value)} required />
             <Input type="password" placeholder="password (optional)" value={password} onChange={(e)=>setPassword(e.target.value)} />
