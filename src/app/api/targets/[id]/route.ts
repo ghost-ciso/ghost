@@ -5,8 +5,14 @@ import type { Target } from "@/types";
 
 type TargetUpdate = Partial<Pick<Target, "name" | "website">>;
 
-export async function PATCH(req: Request, { params }) {
-  const id = String(params?.id ?? "");
+function getIdFromUrl(req: Request) {
+  const path = new URL(req.url).pathname;
+  const parts = path.split("/").filter(Boolean);
+  return parts[parts.length - 1] || "";
+}
+
+export async function PATCH(req: Request) {
+  const id = getIdFromUrl(req);
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
   const { isAdmin } = await requireAdmin();
@@ -24,8 +30,8 @@ export async function PATCH(req: Request, { params }) {
   return NextResponse.json({ ok: true, data });
 }
 
-export async function DELETE(_req: Request, { params }) {
-  const id = String(params?.id ?? "");
+export async function DELETE(req: Request) {
+  const id = getIdFromUrl(req);
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
   const { isAdmin } = await requireAdmin();

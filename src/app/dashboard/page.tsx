@@ -1,4 +1,3 @@
-// src/app/dashboard/page.tsx
 import { supabaseServer } from "@/lib/supabase/server";
 import NewRequestForm from "./NewRequestForm";
 import RequestRow from "./RequestRow";
@@ -11,12 +10,13 @@ export default async function Dashboard() {
 
   const { data: targets } = await supabase
     .from("targets")
-    .select("id,name")
+    .select("id,name,website")
     .order("name");
 
   const safeTargets: Target[] = (targets ?? []).map(t => ({
     id: t.id as string,
     name: t.name as string,
+    website: (t.website ?? null) as string | null,
   }));
 
   const { data: requests } = await supabase
