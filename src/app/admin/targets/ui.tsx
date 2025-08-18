@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-type Target = { id: string; name: string; website: string | null };
+import type { Target } from "@/types";
 
 export default function AdminTargetsClient({ initial }: { initial: Target[] }) {
   const [targets, setTargets] = useState<Target[]>(initial);
@@ -19,7 +18,7 @@ export default function AdminTargetsClient({ initial }: { initial: Target[] }) {
     });
     if (!res.ok) return alert((await res.json()).error || "Failed");
     const { data } = await res.json();
-    setTargets([ ...targets, data ].sort((a,b)=>a.name.localeCompare(b.name)));
+    setTargets([...targets, data].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "")));
     setName(""); setWebsite("");
   }
 
@@ -31,7 +30,7 @@ export default function AdminTargetsClient({ initial }: { initial: Target[] }) {
     });
     if (!res.ok) return alert((await res.json()).error || "Failed");
     const { data } = await res.json();
-    setTargets(targets.map(t => t.id === id ? data : t).sort((a,b)=>a.name.localeCompare(b.name)));
+    setTargets(targets.map(t => t.id === id ? data : t).sort((a,b)=> (a.name ?? "").localeCompare(b.name ?? "")));
   }
 
   async function remove(id: string) {
@@ -70,9 +69,9 @@ export default function AdminTargetsClient({ initial }: { initial: Target[] }) {
 function TargetRow({ t, onSave, onRemove }:{
   t: Target; onSave:(id:string, patch:Partial<Target>)=>void; onRemove:(id:string)=>void
 }) {
-  const [name, setName] = useState(t.name);
+  const [name, setName] = useState(t.name ?? "");
   const [website, setWebsite] = useState(t.website ?? "");
-  const dirty = name !== t.name || website !== (t.website ?? "");
+  const dirty = name !== (t.name ?? "") || website !== (t.website ?? "");
   return (
     <div className="flex gap-2 items-center max-w-3xl">
       <Input className="w-64" value={name} onChange={(e)=>setName(e.target.value)} />

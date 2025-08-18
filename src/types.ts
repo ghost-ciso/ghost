@@ -10,7 +10,7 @@ export type DeletionRequestStatus =
 export interface Target {
   id: UUID;
   name: string;
-  website?: string | null;
+  website: string | null;   // required (string or null)
 }
 
 export interface DeletionRequest {
