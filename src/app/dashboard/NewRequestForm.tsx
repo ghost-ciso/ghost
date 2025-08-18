@@ -1,8 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-
-type Target = { id: string; name: string };
+import type { Target } from "@/types";
 
 export default function NewRequestForm({ targets }: { targets: Target[] }) {
   const [targetId, setTargetId] = useState(targets[0]?.id ?? "");

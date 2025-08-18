@@ -1,15 +1,25 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
+import type { DeletionRequestStatus } from "@/types";
+
+type RequestUpdate = Partial<{
+  status: DeletionRequestStatus;
+  reference_code: string | null;
+}>;
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const supabase = await supabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json().catch(() => ({}));
-  const allowed = ["status", "reference_code"] as const;
-  const updates: Record<string, any> = {};
-  for (const k of allowed) if (k in body) updates[k] = body[k];
+  const body: unknown = await req.json().catch(() => ({}));
+  const updates: RequestUpdate = {};
+
+  if (typeof body === "object" && body) {
+    const b = body as Record<string, unknown>;
+    if ("status" in b) updates.status = b.status as DeletionRequestStatus;
+    if ("reference_code" in b) updates.reference_code = (b.reference_code as string | null) ?? null;
+  }
 
   if (!Object.keys(updates).length) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });

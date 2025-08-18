@@ -2,9 +2,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import type { DeletionRequest, DeletionRequestStatus } from "@/types";
 
-export default function RequestRow({ r, brokerName }: { r: any; brokerName: string }) {
-  const [status, setStatus] = useState<string>(r.status ?? "new");
+export default function RequestRow(
+  { r, brokerName }: { r: DeletionRequest; brokerName: string }
+) {
+  const [status, setStatus] = useState<DeletionRequestStatus>(r.status ?? "new");
   const [ref, setRef] = useState<string>(r.reference_code ?? "");
   const [busy, setBusy] = useState(false);
   const router = useRouter();
@@ -40,7 +43,7 @@ export default function RequestRow({ r, brokerName }: { r: any; brokerName: stri
         <select
           className="border rounded px-2 py-1"
           value={status}
-          onChange={(e) => setStatus(e.target.value)}
+          onChange={(e) => setStatus(e.target.value as DeletionRequestStatus)}
           disabled={busy}
         >
           <option value="new">New</option>

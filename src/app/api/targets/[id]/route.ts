@@ -1,18 +1,26 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin";
 import { supabaseServer } from "@/lib/supabase/server";
+import type { Target } from "@/types";
+
+type TargetUpdate = Partial<Pick<Target, "name" | "website">>;
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const { isAdmin } = await requireAdmin();
   if (!isAdmin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const body = await req.json().catch(() => ({}));
-  const updates: Record<string, any> = {};
-  if ("name" in body) updates.name = body.name;
-  if ("website" in body) updates.website = body.website;
+  const body: unknown = await req.json().catch(() => ({}));
+  const updates: TargetUpdate = {};
 
-  if (!Object.keys(updates).length)
+  if (typeof body === "object" && body) {
+    const b = body as Record<string, unknown>;
+    if ("name" in b) updates.name = b.name as string;
+    if ("website" in b) updates.website = (b.website as string) ?? null;
+  }
+
+  if (!Object.keys(updates).length) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
+  }
 
   const supabase = await supabaseServer();
   const { data, error } = await supabase

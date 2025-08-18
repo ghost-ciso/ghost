@@ -3,6 +3,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import NewRequestForm from "./NewRequestForm";
 import RequestRow from "./RequestRow";
 import SignOutButton from "./SignOutButton";
+import type { Target, DeletionRequest } from "@/types";
 
 export default async function Dashboard() {
   const supabase = await supabaseServer();
@@ -13,16 +14,26 @@ export default async function Dashboard() {
     .select("id,name")
     .order("name");
 
-  const safeTargets = targets ?? [];
+  const safeTargets: Target[] = (targets ?? []).map(t => ({
+    id: t.id as string,
+    name: t.name as string,
+  }));
 
   const { data: requests } = await supabase
     .from("deletion_requests")
-    .select("id, target_id, status, reference_code, created_at")
+    .select("id, user_id, target_id, status, reference_code, created_at")
     .order("created_at", { ascending: false });
 
-  const safeRequests = requests ?? [];
+  const safeRequests: DeletionRequest[] = (requests ?? []).map(r => ({
+    id: r.id as string,
+    user_id: r.user_id as string,
+    target_id: r.target_id as string,
+    status: r.status as DeletionRequest["status"],
+    reference_code: (r.reference_code ?? null) as string | null,
+    created_at: r.created_at as string,
+  }));
 
-  const nameById = new Map(safeTargets.map(t => [t.id, t.name]));
+  const nameById = new Map<string, string>(safeTargets.map(t => [t.id, t.name]));
 
   return (
     <main className="p-6 space-y-6">
@@ -53,7 +64,7 @@ export default async function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {safeRequests.map((r: any) => (
+              {safeRequests.map((r) => (
                 <RequestRow
                   key={r.id}
                   r={r}
